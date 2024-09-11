@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 
+#include <ew/external/stb_image.h>
 #include <ew/external/shader.h>
 #include <ew/external/glad.h>
 #include <ew/ewMath/ewMath.h>
@@ -13,10 +14,10 @@ const int SCREEN_HEIGHT = 480;
 
 // this is the input vertex data for OpenGL. these are in normalized device coordinates
 float vertices[] = {
-	// positions          // colors
-	-0.5f, -0.5f, 0.0f,   1.0f, 0.0f, 0.0f, // BOTTOM RIGHT
-	 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f, // BOTTOM LEFT
-	 0.0f,  0.5f, 0.0f,   0.0f, 0.0f, 1.0f  // TOP
+	// positions           // colors			// Texture coords
+	-0.5f, 0.5f, 0.0f,     1.0f, 0.0f, 0.0f,	1.0f, 0.1f,		// BOTTOM RIGHT
+	 0.5f, 0.5f, 0.0f,     0.0f, 1.0f, 0.0f,	-0.2f, 0.1f,		    // BOTTOM LEFT
+	 0.0f,  -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,	-0.5f, 1.0f		    // TOP
 };
 
 // for the quad (next assignment)
@@ -57,12 +58,46 @@ int main() {
 
 	// Set the vertex attributes pointers
 	// -- Position attribute -- 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 	// -- Color attribute --
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+	// -- Tex Coord Attribute --
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+
+	// load and create a texture
+	unsigned int texture1;
+
+	glGenTextures(1, &texture1);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	// load image, create texture, and generate minmaps
+	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(false); // tell stb_image.h to flip loaded texture's on the y-axis.
+	unsigned char* data = stbi_load("assets/IMG_0736.jpg", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+
+	ourShader.use(); // don't forget to activate/use the shader before setting uniforms!
+	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
 
 	// remember: do NOT unbind the EBO while a VAO is active as the bound element buffer object IS stored in the VAO; keep the EBO bound.
 	// You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
@@ -80,6 +115,10 @@ int main() {
 		// update shader uniform
 		double  timeValue = glfwGetTime();
 		float colorValue = static_cast<float>(sin(timeValue) / 2.0 + 0.5);
+
+		// bind textures on corresponding texture units
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture1);
 
 		// Get the locations of the following variables
 		ourShader.setFloat("value", colorValue);
