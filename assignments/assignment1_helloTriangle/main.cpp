@@ -2,7 +2,7 @@
 #include <math.h>
 
 #include <ew/external/stb_image.h>
-#include <ew/external/shader.h>
+#include <sr/shader.h>
 #include <ew/external/glad.h>
 #include <ew/ewMath/ewMath.h>
 #include <GLFW/glfw3.h>
