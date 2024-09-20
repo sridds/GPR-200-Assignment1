@@ -10,7 +10,8 @@ Texture2D::Texture2D(const char* filePath, int filterMode, int wrapMode, bool fl
     // set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filterMode);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filterMode);
-    // load image, create texture and generate mipmaps
+    // load image, create texture and generate mipmapsa
+
     int nrChannels;
 
     stbi_set_flip_vertically_on_load(flipOnLoad);
@@ -31,6 +32,7 @@ Texture2D::Texture2D(const char* filePath, int filterMode, int wrapMode, bool fl
 
 // Binds to a specific texture unit
 void Texture2D::Bind(unsigned int slot) {
+    glActiveTexture(slot);
 	glBindTexture(GL_TEXTURE_2D, m_id);
 }
 
