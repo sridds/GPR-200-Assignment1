@@ -50,6 +50,7 @@ int main() {
 	Shader ourShader("assets/h_vshader.vs", "assets/h_fshader.fs");
 	Shader ourShader2("assets/b_vshader.vs", "assets/b_fshader.fs");
 
+	// Prepare open GL for blending
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -79,7 +80,7 @@ int main() {
 
 	Texture2D texture1("assets/hank_texture_assignment.png", GL_NEAREST, GL_REPEAT);
 	Texture2D texture2("assets/hank_fight_pose.png", GL_NEAREST, GL_REPEAT);
-	Texture2D texture3("assets/bricks.jpg", GL_NEAREST, GL_REPEAT);
+	Texture2D texture3("assets/bricks.jpg", GL_LINEAR, GL_REPEAT);
 
 	ourShader.use();
 	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
@@ -94,21 +95,23 @@ int main() {
 
 		double timeValue = glfwGetTime();
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
+		// -- Render the Background --
 		texture2.Bind(GL_TEXTURE1);
 		texture3.Bind(GL_TEXTURE2);
+
 		ourShader2.use();
 		ourShader2.setFloat("time", timeValue);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
+		// -- Render the Character -- 
 		texture1.Bind(GL_TEXTURE0);
 		ourShader.use();
 		ourShader.setFloat("time", timeValue);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
-		//Drawing happens here!
 		glfwSwapBuffers(window);
 	}
 

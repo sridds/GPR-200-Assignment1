@@ -1,6 +1,7 @@
 #include "texture.h"
 
 Texture2D::Texture2D(const char* filePath, int filterMode, int wrapMode, bool flipOnLoad) {
+    // Bind the texture to m_id
 	glGenTextures(1, &m_id);
 	glBindTexture(GL_TEXTURE_2D, m_id);
 
@@ -14,8 +15,11 @@ Texture2D::Texture2D(const char* filePath, int filterMode, int wrapMode, bool fl
 
     int nrChannels;
 
+    // Load the image
     stbi_set_flip_vertically_on_load(flipOnLoad);
     unsigned char* data = stbi_load(filePath, &m_width, &m_height, &nrChannels, 0);
+
+    // Ensure the data is valid and can be used
     if (data) 
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
@@ -36,19 +40,19 @@ void Texture2D::Bind(unsigned int slot) {
 	glBindTexture(GL_TEXTURE_2D, m_id);
 }
 
-Texture2D::~Texture2D() {
-
-}
+Texture2D::~Texture2D() { }
 
 // Returns the private m_id variable to the user
 int Texture2D::GetID() {
 	return m_id;
 }
 
+// Returns the private m_width variable to the user
 int Texture2D::GetWidth() {
     return m_width;
 }
 
+// Returns the private m_height variable to the user
 int Texture2D::GetHeight() {
     return m_height;
 }
