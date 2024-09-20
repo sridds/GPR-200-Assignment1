@@ -92,16 +92,20 @@ int main() {
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 
+		double timeValue = glfwGetTime();
+
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		texture2.Bind(GL_TEXTURE1);
 		texture3.Bind(GL_TEXTURE2);
 		ourShader2.use();
+		ourShader2.setFloat("time", timeValue);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		texture1.Bind(GL_TEXTURE0);
 		ourShader.use();
+		ourShader.setFloat("time", timeValue);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
 		//Drawing happens here!
