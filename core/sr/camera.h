@@ -11,7 +11,9 @@ enum Camera_Movement {
 	FORWARD,
 	BACKWARD,
 	LEFT,
-	RIGHT
+	RIGHT,
+	UP,
+	DOWN
 };
 
 const float YAW = -90.0f;
@@ -50,6 +52,8 @@ public:
 
 	// processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
 	void ProcessMouseScroll(float yoffset);
+
+	void SetMovementSpeed(float speed);
 
 private:
 	// calculates the front vector from the cameras euler angles

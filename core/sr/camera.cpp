@@ -34,6 +34,10 @@ void Camera::ProcessKeyboard(Camera_Movement direction, float deltaTime)
 		Position -= Right * velocity;
 	if (direction == RIGHT)
 		Position += Right * velocity;
+	if (direction == UP)
+		Position += Up * velocity;
+	if (direction == DOWN)
+		Position -= Up * velocity;
 }
 
 void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constrainPitch)
@@ -79,4 +83,9 @@ void Camera::updateCameraVectors()
 	// recalculate the right and up vector
 	Right = glm::normalize(glm::cross(Front, WorldUp)); // normalize the vectors because their length gets closer to 0 the more you look up / down which slows movement
 	Up = glm::normalize(glm::cross(Right, Front));
+}
+
+void Camera::SetMovementSpeed(float speed) 
+{
+	MovementSpeed = speed;
 }
