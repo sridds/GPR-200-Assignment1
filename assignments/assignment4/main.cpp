@@ -69,6 +69,8 @@ float vertices[] = {
 	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 };
 
+const int CUBES_AMOUNT = 20;
+
 Camera camera(glm::vec3(0.0f, 0.0f, 25));
 float lastX = SCREEN_WIDTH / 2.0f;
 float lastY = SCREEN_HEIGHT / 2.0f;
@@ -77,33 +79,28 @@ bool firstMouse = true;
 float deltaTime = 0.0f; // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 
-float minRange = -8.0f;
-float maxRange = 8.0f;
-// world space positions of our cubes
-glm::vec3 cubePositions[] = {
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange)),
-	glm::vec3(ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange), ew::RandomRange(minRange, maxRange))
-};
+float minPosRange = -8.0f;
+float maxPosRange = 8.0f;
+
+float minRotRange = -8.0f;
+float maxRotRange = 8.0f;
+
+float minScaleRange = 0.3f;
+float maxScaleRange = 2.0f;
+
+glm::vec3 cubePositions[CUBES_AMOUNT];
+glm::vec3 cubeRotations[CUBES_AMOUNT];
+glm::vec3 cubeScale[CUBES_AMOUNT];
+
 
 int main() {
+
+	for (int i = 0; i < CUBES_AMOUNT; i++) {
+		cubeScale[i] = glm::vec3(ew::RandomRange(minScaleRange, maxScaleRange));
+		cubeRotations[i] = glm::vec3(ew::RandomRange(minRotRange, maxRotRange), ew::RandomRange(minRotRange, maxRotRange), ew::RandomRange(minRotRange, maxRotRange));
+		cubePositions[i] = glm::vec3(ew::RandomRange(minPosRange, maxPosRange), ew::RandomRange(minPosRange, maxPosRange), ew::RandomRange(minPosRange, maxPosRange));
+	}
+
 	printf("Initializing...");
 	if (!glfwInit()) {
 		printf("GLFW failed to init!");
@@ -160,8 +157,6 @@ int main() {
 	ourShader.setInt("texture1", 0);
 	ourShader.setInt("texture2", 1);
 
-
-
 	// Render loop
 	while (!glfwWindowShouldClose(window)) {
 
@@ -204,11 +199,20 @@ int main() {
 		glBindVertexArray(VAO);
 
 		// creates a bunch of cubes
-		for (unsigned int i = 0; i < 20; i++) {
+		for (unsigned int i = 0; i < CUBES_AMOUNT; i++) {
+			// use x as an offset
+			float sinValue = sin(timeValue + cubePositions[i].x);
+			float absSinValue = abs(sinValue);
+
 			glm::mat4 model = glm::mat4(1.0f);
 			model = glm::translate(model, cubePositions[i]);
+			model = glm::translate(model, glm::vec3(0, sinValue, 0));
+
 			float angle = (20.0f * i) + (timeValue * 25.0f);
-			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			model = glm::rotate(model, glm::radians(angle), cubeRotations[i]);
+			model = glm::scale(model, cubeScale[i]);
+			model = glm::scale(model, glm::vec3(absSinValue, absSinValue, absSinValue));
+
 			ourShader.setMat4("model", model);
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
