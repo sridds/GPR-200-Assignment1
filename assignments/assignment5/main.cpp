@@ -99,6 +99,12 @@ glm::vec3 cubeScale[CUBES_AMOUNT];
 
 // lighting
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightColor(1.0f, 1.0f, 1.0f);
+float ambientK = 1;
+float diffuseK = 1;
+float specularK = 1;
+float shininess = 32;
+
 
 int main() {
 
@@ -128,9 +134,6 @@ int main() {
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-
-	// tell GLFW to capture our mouse
-	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// Prepare open GL for blending
 	glEnable(GL_DEPTH_TEST);
@@ -241,9 +244,13 @@ int main() {
 			model = glm::scale(model, glm::vec3(absSinValue, absSinValue, absSinValue));
 
 			ourShader.setMat4("model", model);
-			ourShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+			ourShader.setVec3("lightColor", lightColor);
 			ourShader.setVec3("lightPos", lightPos);
 			ourShader.setVec3("viewPos", camera.Position);
+			ourShader.setFloat("ambientAmt", ambientK);
+			ourShader.setFloat("diffuseAmt", diffuseK);
+			ourShader.setFloat("specularAmt", specularK);
+			ourShader.setFloat("shininessAmt", shininess);
 
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
@@ -271,7 +278,14 @@ int main() {
 
 		// create new window
 		ImGui::Begin("Settings");
-		ImGui::Text("help me");
+		ImGui::DragFloat3("Light Position", &lightPos.x, 0.1f);
+		ImGui::ColorEdit3("Light Color", &lightColor.x);
+
+		ImGui::DragFloat("Ambient", &ambientK, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Diffuse", &diffuseK, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Specular", &specularK, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Shininess", &shininess, 1.0f, 0.0f, 1024.0f);
+
 		ImGui::End();
 
 		// render ImGui
@@ -325,8 +339,20 @@ void processInput(GLFWwindow* window)
 
 // whenever the mouse moves, this callback is called
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn) {
+
 	float xpos = static_cast<float>(xposIn);
 	float ypos = static_cast<float>(yposIn);
+
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2)) {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); //Locks
+	}
+	else {
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL); //Unlocks
+		lastX = xpos;
+		lastY = ypos;
+
+		return;
+	}
 
 	if (firstMouse) {
 		lastX = xpos;
