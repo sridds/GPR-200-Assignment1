@@ -161,12 +161,14 @@ int main() {
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(5 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
+	// load textures into the shader
 	Texture2D texture1("assets/hank_fight_pose.png", GL_NEAREST, GL_REPEAT);
 	Texture2D texture2("assets/bricks.jpg", GL_NEAREST, GL_REPEAT);
 
 	glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
 	glUniform1i(glGetUniformLocation(ourShader.ID, "texture2"), 1);
 
+	// use and set shaders
 	ourShader.use();
 	ourShader.setInt("texture1", 0);
 	ourShader.setInt("texture2", 1);
@@ -223,7 +225,6 @@ int main() {
 		view = camera.GetViewMatrix();
 		ourShader.setMat4("view", view);
 
-
 		// render boxes
 		glBindVertexArray(VAO);
 
@@ -235,14 +236,17 @@ int main() {
 
 			glm::mat4 model = glm::mat4(1.0f);
 
+			// translate based on a sin wave function
 			model = glm::translate(model, cubePositions[i]);
 			model = glm::translate(model, glm::vec3(0, sinValue, 0));
 
+			// rotate and scale
 			float angle = (20.0f * i) + (timeValue * 25.0f);
 			model = glm::rotate(model, glm::radians(angle), cubeRotations[i]);
 			model = glm::scale(model, cubeScale[i]);
 			model = glm::scale(model, glm::vec3(absSinValue, absSinValue, absSinValue));
 
+			// set all values in shader
 			ourShader.setMat4("model", model);
 			ourShader.setVec3("lightColor", lightColor);
 			ourShader.setVec3("lightPos", lightPos);
@@ -278,12 +282,12 @@ int main() {
 
 		// create new window
 		ImGui::Begin("Settings");
+
 		ImGui::DragFloat3("Light Position", &lightPos.x, 0.1f);
 		ImGui::ColorEdit3("Light Color", &lightColor.x);
-
-		ImGui::DragFloat("Ambient", &ambientK, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Diffuse", &diffuseK, 0.01f, 0.0f, 1.0f);
-		ImGui::DragFloat("Specular", &specularK, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Ambient K", &ambientK, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Diffuse K", &diffuseK, 0.01f, 0.0f, 1.0f);
+		ImGui::DragFloat("Specular K", &specularK, 0.01f, 0.0f, 1.0f);
 		ImGui::DragFloat("Shininess", &shininess, 1.0f, 0.0f, 1024.0f);
 
 		ImGui::End();

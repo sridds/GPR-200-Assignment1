@@ -34,12 +34,6 @@ void main()
 
 	vec3 halfwayDir = normalize(lightDir + viewDir);
 	float spec = pow(max(dot(norm, halfwayDir), 0.0), shininessAmt);
-
-	// blin
-	// vec3 reflectDir = reflect(-lightDir, norm);  
-	// float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    // vec3 specular = specularStrength * spec * lightColor;  
-
 	vec3 specular = vec3(specularAmt) * spec * lightColor;
 
 	// get final result
